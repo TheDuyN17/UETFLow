@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import logoUET from "../assets/logo-uet.png";
 import AppSwitcher from "./AppSwitcher";
+import GlobalSearch from "./GlobalSearch";
 import { getAuth, clearAuth } from "../utils/auth";
 
 const SERVICE_CONFIG = {
@@ -106,12 +107,7 @@ export default function AppHeader({ service }) {
       {/* Center: global search */}
       <div className="flex-1 flex justify-center px-6">
         <div className="relative w-full max-w-sm">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Tìm kiếm chức năng"
-            className="w-full pl-9 pr-4 py-1.5 rounded-md bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50"
-          />
+          <GlobalSearch />
         </div>
       </div>
 
