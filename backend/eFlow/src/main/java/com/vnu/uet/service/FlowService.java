@@ -4,7 +4,6 @@ import com.vnu.uet.domain.*;
 import com.vnu.uet.domain.Flow;
 import com.vnu.uet.repository.*;
 import com.vnu.uet.repository.FlowRepository;
-import com.vnu.uet.service.dto.FlowBasicDTO;
 import com.vnu.uet.service.dto.FlowDTO;
 import java.util.List;
 import com.vnu.uet.service.mapper.FlowMapper;
@@ -136,15 +135,13 @@ public class FlowService {
     }
 
     @Transactional(readOnly = true)
-    public List<FlowBasicDTO> findFlowsByGroup(String flowGroupName) {
+    public List<FlowDTO> findFlowsByGroup(String flowGroupName) {
         LOG.debug("Request to get flows by group: {}", flowGroupName);
-        if (flowGroupName == null || flowGroupName.isBlank()) {
-            return List.of();
-        }
+        String group = (flowGroupName == null || flowGroupName.isBlank()) ? null : flowGroupName;
         return flowRepository
-            .findAllByFlowGroupOrderByIdAsc(flowGroupName)
+            .findFlowsByOptionalGroup(group)
             .stream()
-            .map(p -> new FlowBasicDTO(p.getId(), p.getFlowName()))
+            .map(flowMapper::toDto)
             .toList();
     }
 

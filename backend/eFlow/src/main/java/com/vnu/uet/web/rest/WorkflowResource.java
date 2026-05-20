@@ -2,7 +2,6 @@ package com.vnu.uet.web.rest;
 
 import com.vnu.uet.service.FlowService;
 import com.vnu.uet.service.InternalProxyService;
-import com.vnu.uet.service.dto.FlowBasicDTO;
 import com.vnu.uet.service.dto.FlowDTO;
 import com.vnu.uet.service.dto.FlowGroupRequestDTO;
 import java.time.Instant;
@@ -49,12 +48,12 @@ public class WorkflowResource {
     }
 
     /**
-     * {@code POST /} : Get basic flows info by flow_group_name.
-     * Request body example: {"flow_group_name":"A"}
-     * @return list of {flowId, flowName}.
+     * {@code POST /} : Get flows by flow_group_name (returns full FlowDTO).
+     * Request body example: {"flow_group_name":"A"} or {} for all flows.
+     * @return list of FlowDTO.
      */
     @PostMapping
-    public ResponseEntity<List<FlowBasicDTO>> getFlowsByGroup(@RequestBody(required = false) FlowGroupRequestDTO request) {
+    public ResponseEntity<List<FlowDTO>> getFlowsByGroup(@RequestBody(required = false) FlowGroupRequestDTO request) {
         String groupName = request != null ? request.getFlowGroupName() : null;
         log.debug("REST request to get flows by group: {}", groupName);
         return ResponseEntity.ok(flowService.findFlowsByGroup(groupName));

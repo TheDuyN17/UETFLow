@@ -16,7 +16,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import AppHeader from "../components/AppHeader";
 import IconSidebar from "../components/IconSidebar";
-import { eRequest } from "../services/api";
+import { eRequest, eFlow } from "../services/api";
 import { showToast } from "../utils/toast";
 import { getAuth } from "../utils/auth";
 import {
@@ -258,9 +258,55 @@ function ZoomControls() {
 
 // ─── Workflow diagram ─────────────────────────────────────────────────────────
 
-function WorkflowDiagram() {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+const TYPE_MAP = {
+  start: "startNode",
+  end: "endNode",
+  eaccount: "stepNode",
+  user_task: "stepNode",
+  approval: "stepNode",
+};
+
+function buildReactFlowNodes(backendNodes, historySteps, currentNodeId) {
+  if (!backendNodes || backendNodes.length === 0) return initialNodes;
+  const completedIds = new Set((historySteps ?? []).filter(s => s.status === 1).map(s => s.nodeId));
+  const X_START = 40; const Y = 84; const STEP_Y = 44; const GAP = 220;
+  let xPos = X_START;
+  return backendNodes.map((n, i) => {
+    const type = TYPE_MAP[n.nodeType?.toLowerCase()] ?? "stepNode";
+    const isStart = type === "startNode"; const isEnd = type === "endNode";
+    const status = completedIds.has(n.id) ? "completed"
+      : n.id === currentNodeId ? "inProgress" : "notStarted";
+    const pos = { x: xPos, y: (isStart || isEnd) ? Y : STEP_Y };
+    xPos += GAP;
+    return {
+      id: `n-${n.id}`,
+      type,
+      position: pos,
+      data: { label: n.nodeType ?? `Bước ${i + 1}`, status },
+    };
+  });
+}
+
+function buildReactFlowEdges(backendEdges) {
+  if (!backendEdges || backendEdges.length === 0) return initialEdges;
+  return backendEdges.map(e => ({
+    id: `e-${e.id}`,
+    source: `n-${e.node?.id ?? e.nodeId}`,
+    target: `n-${e.childNodeId}`,
+    ...edgeOpts,
+  }));
+}
+
+function WorkflowDiagram({ definition, history, currentNodeId }) {
+  const rfNodes = definition?.nodes?.length > 0
+    ? buildReactFlowNodes(definition.nodes, history, currentNodeId)
+    : initialNodes;
+  const rfEdges = definition?.edges?.length > 0
+    ? buildReactFlowEdges(definition.edges)
+    : (definition?.nodes?.length > 0 ? [] : initialEdges);
+
+  const [nodes, , onNodesChange] = useNodesState(rfNodes);
+  const [edges, , onEdgesChange] = useEdgesState(rfEdges);
 
   return (
     <ReactFlow
@@ -318,6 +364,7 @@ export default function TransactionDetail() {
   const [commentText,  setCommentText]  = useState("");
   const [commenting,   setCommenting]   = useState(false);
   const [stepConfig,   setStepConfig]   = useState(null);
+  const [flowDef,      setFlowDef]      = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -336,6 +383,13 @@ export default function TransactionDetail() {
       if (sc.status === "fulfilled") setStepConfig(sc.value);
     }).finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!ticket?.flowId) return;
+    eFlow.getDefinition(ticket.flowId)
+      .then(def => setFlowDef(def))
+      .catch(() => {});
+  }, [ticket?.flowId]);
 
   return (
     <div
@@ -505,7 +559,11 @@ export default function TransactionDetail() {
                     <div className="p-5 h-full flex flex-col" style={{ minHeight: 0 }}>
                       <div className="flex-1 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white" style={{ minHeight: 420 }}>
                         <ReactFlowProvider>
-                          <WorkflowDiagram />
+                          <WorkflowDiagram
+                            definition={flowDef}
+                            history={history}
+                            currentNodeId={ticket?.currentNodeId}
+                          />
                         </ReactFlowProvider>
                       </div>
                     </div>

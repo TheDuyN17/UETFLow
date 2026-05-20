@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "../components/AppHeader";
 import IconSidebar from "../components/IconSidebar";
-import { eRequest } from "../services/api";
+import { eRequest, eFlow } from "../services/api";
 import { showToast } from "../utils/toast";
 import {
   Home,
@@ -162,19 +162,33 @@ export default function ERequest() {
   }, []);
 
   useEffect(() => {
-    eRequest.getMyWorkflows()
+    const COLORS = ["#f97316","#16a34a","#d97706","#0891b2","#7c3aed","#ec4899","#2563eb","#059669"];
+    const mapFlows = (items) => items.map((wf, i) => ({
+      id: wf.id ?? wf.flowId ?? wf.workflowId ?? i,
+      name: wf.flowName ?? wf.workflowName ?? wf.name ?? "Quy trình",
+      desc: wf.department ?? wf.describe ?? wf.description ?? "",
+      color: COLORS[i % COLORS.length],
+    }));
+
+    // Load published flows from eFlow directly (status DangHoatDong)
+    eFlow.listWorkflows({})
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const COLORS = ["#f97316","#16a34a","#d97706","#0891b2","#7c3aed","#ec4899","#2563eb","#059669"];
-          setCards(data.map((wf, i) => ({
-            id: wf.flowId ?? wf.workflowId ?? wf.id ?? i,
-            name: wf.workflowName ?? wf.name ?? "Quy trình",
-            desc: wf.description ?? "",
-            color: COLORS[i % COLORS.length],
-          })));
-        }
+        const items = Array.isArray(data) ? data : (data?.content ?? []);
+        const published = items.filter(w =>
+          String(w.status ?? "").toUpperCase() === "DANGHOATDONG" ||
+          String(w.status ?? "").toUpperCase() === "ACTIVE"
+        );
+        if (published.length > 0) setCards(mapFlows(published));
       })
-      .catch(() => {});
+      .catch(() => {
+        // fallback: try eRequest proxy
+        eRequest.getMyWorkflows()
+          .then(data => {
+            const items = Array.isArray(data) ? data : (data?.content ?? []);
+            if (items.length > 0 && items[0].flowId !== 1) setCards(mapFlows(items));
+          })
+          .catch(() => {});
+      });
   }, []);
 
   const filtered = cards.filter((c) =>

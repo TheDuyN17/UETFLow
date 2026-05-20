@@ -760,7 +760,11 @@ function DesignerCanvas({ flowId, onNodeSelect }) {
             if (prev.some(c => c?.fromId === fromId && c?.toId === toId)) return prev;
             // Persist edge to backend if both nodes have backendId
             if (flowId && fromNode?.backendId && target?.backendId) {
-              eFlow.addEdge(flowId, { nodeId: fromNode.backendId, childNodeId: target.backendId }).catch(() => {});
+              eFlow.addEdge(flowId, {
+                node: { id: fromNode.backendId },
+                childNodeId: target.backendId,
+                flow: { id: Number(flowId) },
+              }).catch(() => {});
             }
             return [...prev, { id: `conn-${Date.now()}`, fromId, fromSide, toId, toSide }];
           });

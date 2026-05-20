@@ -37,7 +37,7 @@ const formatDate = (d) => {
 const mapFlowStatus = (s) => {
   if (!s) return "Ngừng áp dụng";
   const u = String(s).toUpperCase();
-  if (u === "ACTIVE" || u === "1" || u === "TRUE") return "Áp dụng";
+  if (u === "ACTIVE" || u === "1" || u === "TRUE" || u === "DANGHOATDONG") return "Áp dụng";
   return "Ngừng áp dụng";
 };
 
@@ -97,6 +97,8 @@ export default function EFlowWorkflow() {
   const [initGroups, setInitGroups]     = useState([]);
   const [initSubmitting, setInitSubmitting] = useState(false);
 
+  const [selectedGroup, setSelectedGroup] = useState(null); // null = not yet loaded
+  const [groups, setGroups]               = useState([]);
 
   const [accessDenied, setAccessDenied] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
@@ -111,31 +113,49 @@ export default function EFlowWorkflow() {
       .catch(() => {});
   }, []);
 
+  // Load groups on mount or refreshKey change
   useEffect(() => {
-    eFlow.listWorkflows({ page: currentPage - 1, size: 8 })
+    eFlow.getWorkflowGroup()
+      .then(d => {
+        const gs = Array.isArray(d) ? d : [];
+        setGroups(gs);
+        if (gs.length > 0) {
+          setSelectedGroup(prev => prev ?? gs[0]);
+        } else {
+          setSelectedGroup(""); // trigger load-all when no groups
+        }
+      })
+      .catch(() => setSelectedGroup(""));
+  }, [refreshKey]);
+
+  // Load flows when group or page changes
+  useEffect(() => {
+    if (selectedGroup === null) return; // wait for groups to load
+    const body = selectedGroup ? { flow_group_name: selectedGroup } : {};
+    eFlow.listWorkflows(body)
       .then(data => {
         if (!data) return;
         const items = data.content ?? data.items ?? data;
-        if (Array.isArray(items) && items.length > 0) {
+        if (Array.isArray(items)) {
           setFlowData(items.map(w => ({
-            id: w.workflowId ?? w.id,
-            name: w.workflowName ?? w.name,
-            group: w.groupName ?? "",
+            id: w.id ?? w.flowId ?? w.workflowId,
+            name: w.flowName ?? w.workflowName ?? w.name ?? "",
+            group: w.flowGroup ?? w.groupName ?? selectedGroup ?? "",
             type: w.type ?? "Quy trình số hóa",
-            createdDate: formatDate(w.createdAt ?? w.createdDate),
+            createdDate: formatDate(w.flowStartDate ?? w.createdAt ?? w.createdDate),
             status: mapFlowStatus(w.status),
             appliedDate: formatDate(w.appliedAt),
-            avatar: (w.creatorName ?? "").substring(0, 2).toUpperCase() || "?",
+            avatar: (w.ownerName ?? w.creatorName ?? "").substring(0, 2).toUpperCase() || "?",
             avatarColor: "#6d28d9",
-            userName: w.creatorName ?? "",
+            userName: w.ownerName ?? w.creatorName ?? "",
             userEmail: w.creatorEmail ?? "",
           })));
           setTotalItems(data.totalElements ?? items.length);
-          setTotalPages(data.totalPages ?? Math.ceil((data.totalElements ?? items.length) / 8));
+          setTotalPages(Math.max(1, data.totalPages ?? Math.ceil((data.totalElements ?? items.length) / 8)));
         }
       })
       .catch(() => {});
-  }, [currentPage, refreshKey]);
+  }, [selectedGroup, currentPage, refreshKey]);
 
   const pages = Array.from({ length: Math.min(4, totalPages) }, (_, i) => i + 1);
 
@@ -237,10 +257,8 @@ export default function EFlowWorkflow() {
               <button
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white rounded bg-blue-500 hover:bg-blue-600 transition-colors"
                 onClick={() => {
-                  setInitForm(INIT_FORM_DEFAULT);
-                  eFlow.getWorkflowGroup()
-                    .then(d => setInitGroups(Array.isArray(d) ? d : []))
-                    .catch(() => setInitGroups([]));
+                  setInitForm({ ...INIT_FORM_DEFAULT, flowGroup: groups[0] ?? "" });
+                  setInitGroups(groups);
                   setInitModal({ open: true });
                 }}
               >
@@ -249,6 +267,26 @@ export default function EFlowWorkflow() {
               </button>
             </div>
           </div>
+
+          {/* Group filter tabs */}
+          {groups.length > 0 && (
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <span className="text-xs text-gray-500 font-medium">Nhóm:</span>
+              {groups.map(g => (
+                <button
+                  key={g}
+                  onClick={() => { setSelectedGroup(g); setCurrentPage(1); }}
+                  className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                    selectedGroup === g
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600"
+                  }`}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Search & Filter */}
           <div className="flex items-center gap-3 mb-4">
@@ -887,8 +925,11 @@ export default function EFlowWorkflow() {
                       department: initForm.department.trim(),
                       describe: initForm.describe.trim(),
                     });
-                    const newId = data?.workflowId ?? data?.id;
+                    const newId = data?.id ?? data?.workflowId ?? data?.flowId;
+                    const newGroup = data?.flowGroup ?? (initForm.flowGroup.trim() || "default");
                     setInitModal({ open: false });
+                    setSelectedGroup(newGroup);
+                    setRefreshKey(k => k + 1);
                     if (newId) navigate(`/eflow/edit/${newId}`);
                     else navigate("/eflow/edit/new");
                   } catch (err) {
