@@ -142,7 +142,9 @@ public class DocumentMapService {
         filledForm.setGeminiModel("gemini-2.0-flash");
         filledForm.setDocument(doc);
         filledFormRepository.save(filledForm);
-        
+
+        result.setExtractionId(taskId);
+        result.setRawText(rawText);
         return result;
     }
 }

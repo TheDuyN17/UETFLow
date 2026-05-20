@@ -85,12 +85,15 @@ public class DocumentMapResource {
         }
         
         FilledForm form = formOpt.orElseThrow();
+        DocumentExtraction doc = docOpt.orElseThrow();
         FilledFormResultDTO dto = new FilledFormResultDTO();
+        dto.setExtractionId(taskId);
         dto.setFormName(form.getFormName());
         dto.setConfidence(form.getConfidence());
         dto.setMissingFields(form.getMissingFields());
         dto.setFilledData(form.getFilledData());
-        
+        dto.setRawText(doc.getRawText());
+
         return ResponseEntity.ok(dto);
     }
     

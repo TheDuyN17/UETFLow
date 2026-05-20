@@ -5,6 +5,8 @@ public class FilledFormResultDTO {
     private String filledData; // JSON String
     private Double confidence;
     private String missingFields;
+    private String rawText;
+    private Long extractionId;
 
     public FilledFormResultDTO() {}
 
@@ -19,4 +21,10 @@ public class FilledFormResultDTO {
 
     public String getMissingFields() { return missingFields; }
     public void setMissingFields(String missingFields) { this.missingFields = missingFields; }
+
+    public String getRawText() { return rawText; }
+    public void setRawText(String rawText) { this.rawText = rawText; }
+
+    public Long getExtractionId() { return extractionId; }
+    public void setExtractionId(Long extractionId) { this.extractionId = extractionId; }
 }

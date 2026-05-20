@@ -1,3 +1,4 @@
+
 version: '3.8'
 
 services:
@@ -149,6 +150,8 @@ services:
       JHIPSTER_CORS_ALLOWED_HEADERS: '*'
       JHIPSTER_CORS_ALLOW_CREDENTIALS: 'true'
       JHIPSTER_CORS_MAX_AGE: '1800'
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-dummy}
+      GEMINI_API_MODEL: gemini-flash-lite-latest
     ports:
       - "8085:8085"
     depends_on:
