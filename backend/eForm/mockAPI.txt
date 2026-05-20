@@ -1,0 +1,13 @@
+Method: POST
+Endpoint: /api/internal/auth/refresh-token
+Input (JSON Body):
+{
+  "expiredToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "email": "kyta_ptsc@yopmail.com"
+}
+Output (JSON Body):
+{
+  "token": "eyJhbGciOiJIUzI1NiJ_NEW_REFRESHED_TOKEN_2026...",
+  "roles": [-1, 2, 3],
+  "expiresIn": 3600 
+}

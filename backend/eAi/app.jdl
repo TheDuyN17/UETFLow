@@ -1,0 +1,37 @@
+application {
+  config {
+    baseName docform
+    applicationType microservice
+    packageName com.vnu.uet
+    authenticationType jwt
+    databaseType sql
+    prodDatabaseType mysql
+    devDatabaseType mysql
+    buildTool maven
+    serverPort 8084
+    languages [en, vi]
+    nativeLanguage vi
+  }
+  entities *
+}
+
+entity DocumentExtraction {
+    s3Key String required maxlength(500)
+    formName String required maxlength(100)
+    rawText TextBlob
+    status String maxlength(20)
+    extractedAt Instant
+}
+
+entity FilledForm {
+    formName String required maxlength(100)
+    filledData TextBlob
+    confidence Double
+    geminiModel String maxlength(50)
+    processedAt Instant
+    missingFields String maxlength(1000)
+}
+
+relationship ManyToOne {
+    FilledForm{document} to DocumentExtraction
+}

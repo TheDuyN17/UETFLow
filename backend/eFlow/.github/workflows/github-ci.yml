@@ -1,0 +1,126 @@
+name: eFlow CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+# Cấp quyền để dorny/test-reporter có thể tạo Check Runs
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compile and Static Analysis
+        run: |
+          ./mvnw -Pprod compile -DskipTests "-Dmodernizer.skip=true"
+
+      - name: Verify Spring Boot Start (Optional)
+        run: |
+          ./mvnw spring-boot:help
+
+  test-logic:
+    name: Test API Logic
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Check Docker status
+        run: |
+          docker info
+          docker ps
+          ls -l /var/run/docker.sock || echo "/var/run/docker.sock not found"
+
+      - name: Run Integration Tests
+        id: run-tests
+        continue-on-error: true
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: 'true'
+          TESTCONTAINERS_CHECKS_TIMEOUT: 600
+        run: |
+          ./mvnw verify -B -ntp "-Dmodernizer.skip=true" "-Denforcer.skip=true" -e
+
+      - name: Run Dedicated Logic Verification
+        if: always()
+        run: |
+          ./mvnw test -Dtest=APICustomLogicIntTest -DfailIfNoTests=false
+
+      - name: Publish API Logic Test Results
+        if: always()
+        run: |
+          if [ -f target/api-test-results.md ]; then
+            cat target/api-test-results.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No API results table found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # In nội dung báo cáo failsafe ra log để debug ngay trên GitHub Actions
+      - name: Print Failsafe Report (Debug)
+        if: always()
+        run: |
+          echo "===== LISTING REPORTS DIRECTORY ====="
+          ls -R target/surefire-reports || echo "No surefire reports"
+          ls -R target/failsafe-reports || echo "No failsafe reports"
+          echo "===== FAILSAFE REPORTS CONTENT ====="
+          if [ -d "target/failsafe-reports" ]; then
+            for f in target/failsafe-reports/*.txt; do
+              if [ -f "$f" ]; then
+                echo "--- $f ---"
+                cat "$f"
+                echo ""
+              fi
+            done
+          else
+            echo "No failsafe-reports directory found."
+          fi
+
+      - name: Upload Surefire Test Results (Unit Tests)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+
+      - name: Upload Failsafe Test Results (Integration Tests)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failsafe-reports
+          path: target/failsafe-reports/
+          if-no-files-found: ignore

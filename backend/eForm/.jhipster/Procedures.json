@@ -1,0 +1,58 @@
+{
+  "name": "Procedures",
+  "fields": [
+    {
+      "fieldName": "formId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "procedureId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "procedureName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "stepId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "stepName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "userId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "createdBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "orgIn",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "custId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "createdDate",
+      "fieldType": "Instant"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20240123041028",
+  "entityTableName": "procedures",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "eform",
+  "applications": "*",
+  "microserviceName": "eform"
+}

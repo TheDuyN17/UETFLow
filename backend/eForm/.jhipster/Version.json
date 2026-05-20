@@ -1,0 +1,109 @@
+{
+  "name": "Version",
+  "fields": [
+    {
+      "fieldName": "versionId",
+      "fieldType": "Long",
+      "options": {
+        "id": true
+      }
+    },
+    {
+      "fieldName": "versionName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "formId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "action",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "active",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "formName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "formCode",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "jsonForm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "statusForm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "tag",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "beginTime",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "endTime",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "afterChange",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "beforeChange",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "userId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "createdBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "orgIn",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "custId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "createdDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "lastModifiedBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "lastModifiedDate",
+      "fieldType": "Instant"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20240123040828",
+  "entityTableName": "version",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "eform",
+  "applications": "*",
+  "microserviceName": "eform"
+}

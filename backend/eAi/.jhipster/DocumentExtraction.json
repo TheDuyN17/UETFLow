@@ -1,0 +1,40 @@
+{
+  "annotations": {
+    "changelogDate": "20260418052239"
+  },
+  "applications": ["docform"],
+  "clientRootFolder": "docform",
+  "databaseType": "sql",
+  "fields": [
+    {
+      "fieldName": "s3Key",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "500"
+    },
+    {
+      "fieldName": "formName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "rawText",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "extractedAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "microserviceName": "docform",
+  "name": "DocumentExtraction",
+  "relationships": [],
+  "searchEngine": "no"
+}

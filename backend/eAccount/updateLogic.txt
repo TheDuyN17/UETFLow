@@ -1,0 +1,5 @@
+Cập nhật Định nghĩa Quyền (Role 3): Đổi tên nhóm quyền số 3 từ "Truy cập luồng" thành "Thiết kế quy trình (BI Admin - eFlow)". Quyền này chỉ dành cho người thiết kế sơ đồ, không liên quan đến việc duyệt hồ sơ của người dùng thuần.
+Cơ chế Xóa tài khoản (Soft Delete): Tuyệt đối không thực hiện xóa vật lý (Hard Delete) bản ghi tài khoản để tránh làm đứt gãy dữ liệu tại eRequest.
+Thao tác "Xóa" tại Nhóm 1 và Nhóm 4 sẽ thực hiện chuyển trạng thái trường isActive thành false.
+API check-deletable phải trả về false nếu email đó đang là "Người thực hiện" (performer) trong bất kỳ bước nào của eRequest có trạng thái "Đang thực hiện".
+Quy tắc nguồn dữ liệu định danh: eAccount là service duy nhất nắm giữ thông tin Profile chính xác. Các service khác (eForm, eFlow) khi cần thông tin người dùng phải gọi API /api/account/profile thay vì tự lưu trữ bản sao dữ liệu

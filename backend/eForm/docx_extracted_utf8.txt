@@ -1,0 +1,395 @@
+Frontend
+/template           (giao diện chính)
+Kiểu
+API
+Response ví dụ
+Get
+/owner/menu-views
+Get
+/account
+{
+  "id": 159822,
+  "login": "kyta_ptsc@yopmail.com",
+  "firstName": "Tổng công ty",
+  "lastName": "Cổ phần Dịch vụ Kỹ thuật Dầu khí Việt Nam",
+  "email": "kyta_ptsc@yopmail.com",
+  "gender": null,
+  "address": "18 Phố Láng Hạ, Phường Giảng Võ, TP Hà Nội, Việt Nam.",
+  "imageUrl": "https://prod-2025-eaccount-user-image-second.s3-han02.fptcloud.com/user/avatar/9/P2T95P0yn3gtQP6gB8zx_159822_avatar.jpg",
+  "activated": true,
+  "langKey": "vi",
+  "createdBy": null,
+  "createdDate": "2025-08-21T03:12:06Z",
+  "lastModifiedBy": "kyta_ptsc@yopmail.com",
+  "lastModifiedDate": "2025-08-22T03:30:15Z",
+  "authorities": [
+    "ROLE_USER",
+    "ROLE_CUST_DOC",
+    "ROLE_ORG_ADMIN"
+  ],
+  "phone": "0999999999",
+  "dob": null,
+  "avatar": ""(cái trong này là byte code của ảnh),
+  "signature": null,
+  "custId": 6306,
+  "orgName": "TỔNG CÔNG TY CỔ PHẦN DỊCH VỤ KỸ THUẬT DẦU KHÍ VIỆT NAM",
+  "custType": "O",
+  "parentOrgName": "TỔNG CÔNG TY CỔ PHẦN DỊCH VỤ KỸ THUẬT DẦU KHÍ VIỆT NAM",
+  "taxCodeOrg": "0100681592",
+  "acNameOrg": "TĐCNNLQGVNNLQGVN",
+  "orgCode": null,
+  "organization": {
+    "id": 14366,
+    "name": "TỔNG CÔNG TY CỔ PHẦN DỊCH VỤ KỸ THUẬT DẦU KHÍ VIỆT NAM",
+    "acName": "TĐCNNLQGVNNLQGVN",
+    "custId": 6306,
+    "folderName": "TĐCNNLQGVNNLQGVN",
+    "folderPath": "/storage-01/6306",
+    "orgCode": null,
+    "taxCode": "0100681592",
+    "parentId": null,
+    "orgIn": "/6306/14366",
+    "folderId": "14366",
+    "type": "LEGAL",
+    "createdBy": "anonymousUser",
+    "createdDate": "2025-08-21T03:12:06Z",
+    "lastModifiedBy": null,
+    "lastModifiedDate": null,
+    "activated": true,
+    "globalName": null,
+    "mainJob": null,
+    "issuedDate": null,
+    "authorizedCapital": null,
+    "address": null,
+    "storageId": null,
+    "blocked": false,
+    "existUsers": true
+  },
+  "subOrganizations": [],
+  "step": null,
+  "otherDataStorage": {
+    "id": 49,
+    "type": "tinymce",
+    "content": "tinymce",
+    "custId": 0,
+    "attrs": {
+      "key": "uxmk6h6swna5ukr3rypcsjoc6n9q2ls5691c80vdjufq00ty"
+    },
+    "createdBy": null,
+    "createdDate": null,
+    "lastModifiedBy": "hieult35@fpt.com.vn",
+    "lastModifiedDate": "2025-10-07T08:18:30Z"
+  },
+  "activityLogName": null,
+  "groupId": null,
+  "userId": null,
+  "emailCustomer": null,
+  "features": null,
+  "orgIn": "/6306/14366",
+  "dbSuffix": "00007",
+  "blocked": false,
+  "folderPath": "/storage-01/6306",
+  "folderId": "0000719zlc5A1tpRgx0XAwFeqLy",
+  "orgId": 14366,
+  "digitalSignature": {
+    "id": null,
+    "type": "TB",
+    "w": 164,
+    "h": 90,
+    "fieldLogoDesign": {
+      "position": "T",
+      "size": null,
+      "required": true,
+      "value": "" (cũng là byte code ảnh)
+    },
+    "fieldTextDesign": {
+      "position": "B",
+      "required": true,
+      "items": null,
+      "color": "0,0,0",
+      "font": "TIMES_NEW_ROMAN",
+      "textDisplay": {
+        "signedBy": true,
+        "title": true,
+        "signingDate": true
+      },
+      "multiLine": true
+    },
+    "star": true,
+    "name": "Chữ ký ảnh số"
+  },
+  "defaultOrgIn": null,
+  "bio": null,
+  "taxCode": null,
+  "knowledgeUsers": null,
+  "attrs": {
+    "priority": [
+      {
+        "orgIn": "/6306/14366",
+        "priority": 159822
+      }
+    ]
+  },
+  "existedIdCard": false,
+  "lastModifiedPasswordDate": "2025-08-21T03:14:11Z",
+  "roles": [],
+  "policiesIdList": null,
+  "policiesList": null,
+  "userDTOAuthor": null,
+  "legalType": null,
+  "zoom": "1",
+  "groups": null
+}
+Post
+/filter
+(Param để cứng là: page=0&size=20&sort=createdDate%2Cdesc)
+Post
+/owner/find-form
+(Param: page là trang hiện tại (bắt đầu từ 0), page để cứng là 8)
+{
+  "total": 207,
+  "content": [
+    {
+      "custId": 6306,
+      "orgIn": "/6306/14366",
+      "userId": 159822,
+      "createdBy": "kyta_ptsc@yopmail.com",
+      "formId": "000071VoIeLGyFwMGweR23umq1o",
+      "formName": "PTSC_Biên bản nghiệm",
+      "statusForm": "editing",
+      "createdDate": "2026-01-07 11:16:29",
+      "updateAt": "2026-01-08 10:02:24",
+      "tag": [],
+      "beginTime": "2026-01-06 00:00:00",
+      "endTime": "2049-12-31 23:59:59",
+      "listProcedure": "Quy trình sáng kiến-cải tiến",
+      "describeForm": "",
+      "fix": true,
+      "duplicate": true,
+      "stopRelease": false,
+      "release": true,
+      "extendValidity": true,
+      "versionId": "000071dMIGr4nHz1RELlpLTgp9A",
+      "formCode": "PMSK_Bien_ban_nghiem_thu_Update"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "orders": []
+    },
+    "page": 0,
+    "size": 8
+  }
+}
+Get
+/menu-swaps
+Body của 2 cái post:
+Của “/filter”:
+Của “/owner/find-form”:
+/template                   (án vào hình con mắt)
+Kiểu
+API
+Response ví dụ
+Get
+/owner/form
+(Param: formId)
+Get
+owner/menu-views
+Xem cái đầu tiên ở mục trước
+Get
+/account
+Xem cái thứ 2 ở mục trước
+/template                   (nhân bản)
+Kiểu
+API
+Response ví dụ
+Post
+owner/duplicate-form
+(Param: formId)
+{
+  "formId": "000071ENIeV1TrPvPPqDOFmve2",
+  "formName": "PTSC_phase1_Form xem xét và lập kế hoạch - Copy - Copy",
+  "formCode": "XXVLKH_copy_copy",
+  "description": "",
+  "jsonForm": "" (dài quá có thể tự xem),
+  "statusForm": 1,
+  "tag": "",
+  "beginTime": {
+    "seconds": 1755622800,
+    "nanos": 0
+  },
+  "endTime": {
+    "seconds": 2493046799,
+    "nanos": 0
+  },
+  "userId": 159822,
+  "createdBy": "kyta_ptsc@yopmail.com",
+  "orgIn": "/6306/14366",
+  "custId": 6306,
+  "createdDate": {
+    "seconds": 1772941472,
+    "nanos": 295579000
+  },
+  "lastModifiedBy": "kyta_ptsc@yopmail.com",
+  "lastModifiedDate": {
+    "seconds": 1772941472,
+    "nanos": 295579000
+  },
+  "jsonFormCondition": "[]"
+}
+Get
+owner/form
+(Param: formId)
+Y hệt cái số 1 trước đó
+Put
+owner/form
+Get
+/common/check-edit
+(Param: formId)
+Body  ví dụ:
+Về cái post owner/duplicate-form
+Về cái put owner/form:
+/template/{formId)           (kích hoạt bằng ấn vào cây bút để sửa ở  /template)(bắt đầu sửa)
+Kiểu
+API
+Response ví dụ
+Get
+/common/check-edit
+(Param: formId)
+Cái số 4 ở trước
+Get
+owner/form
+(Param: formId)
+/template/{formId)         (ấn vào lưu)(sửa xong)
+Kiểu
+API
+Body 
+Put
+/owner/form
+Tạo mới form
+Ấn nút “
+Sau khi ấn thì sẽ gọi:
+Kiểu
+API
+Response ví dụ
+Post
+/owner/form
+{
+  "formId": "000071OWIagyFJazrBbgQINaJ2",
+  "formName": "TestForBeginnẻ",
+  "formCode": "Test_ForBeginner",
+  "description": "",
+  "jsonForm": "[]",
+  "statusForm": 1,
+  "tag": "",
+  "beginTime": {
+    "seconds": 1772557200,
+    "nanos": 0
+  },
+  "endTime": {
+    "seconds": 2511968399,
+    "nanos": 0
+  },
+  "userId": 159822,
+  "createdBy": "kyta_ptsc@yopmail.com",
+  "orgIn": "/6306/14366",
+  "custId": 6306,
+  "createdDate": {
+    "seconds": 1772943163,
+    "nanos": 439540000
+  },
+  "lastModifiedBy": "kyta_ptsc@yopmail.com",
+  "lastModifiedDate": {
+    "seconds": 1772943163,
+    "nanos": 439540000
+  },
+  "jsonFormCondition": "[]"
+}
+Get
+/common/check-edit
+(Param: formId)
+Get
+/owner/form
+(Param: formId)
+Body của cái Post:
+Sau khi ấn lưu thì nó thực hiện y hệt trường hợp “e” ở trên
+/template/{formId)                        (ấn nút “Phát hành” ở góc trên bên phải)             và 
+/template                          (ở cái bên Hành động, ấn cái hình tròn có dấu v bên trong mà  m                                      có chữ “phát hành biểu mẫu” khi để chuột gần vào)  
+Kiểu
+API
+Response ví dụ
+Get
+/owner/form/change-status
+(param: formId)
+{
+  "formId": "000071OWIagyFJazrBbgQINaJ2",
+  "formName": "TestForBeginnẻ",
+  "formCode": "Test_ForBeginner",
+  "description": "",
+  "jsonForm": "[{\"id\": \"000071OWIagyFJazrBbgQINaJ2_row-1\", \"type\": \"row\", \"label\": \"row\", \"hashid\": \"nR96WQKGWSQY\", \"display\": true, \"components\": [], \"placeholder\": \"row\"}]",
+  "variableArr": "[{\"code\": \"000071OWIagyFJazrBbgQINaJ2_row-1\", \"variableName\": \"row\", \"variableType\": \"row\"}]",
+  "statusForm": 2,
+  "tag": "",
+  "beginTime": {
+    "seconds": 1772557200,
+    "nanos": 0
+  },
+  "endTime": {
+    "seconds": 2511968399,
+    "nanos": 0
+  },
+  "userId": 159822,
+  "createdBy": "kyta_ptsc@yopmail.com",
+  "orgIn": "/6306/14366",
+  "custId": 6306,
+  "createdDate": {
+    "seconds": 1772943163,
+    "nanos": 0
+  },
+  "lastModifiedBy": "kyta_ptsc@yopmail.com",
+  "lastModifiedDate": {
+    "seconds": 1772943825,
+    "nanos": 699947000
+  },
+  "jsonFormCondition": "[]"
+}
+/template                     (ở cái bên Hành động, ấn cái hình tròn có dấu x bên trong mà  m                                                    m                                 có chữ “ngừng phát hành biểu mẫu” khi để chuột gần vào) 
+Kiểu
+API
+Response ví dụ
+Delete
+/owner/form/change-status
+(param: formId)
+{
+  "formId": "000071OWIagyFJazrBbgQINaJ2",
+  "formName": "TestForBeginnẻ",
+  "formCode": "Test_ForBeginner",
+  "description": "",
+  "jsonForm": "[{\"id\": \"000071OWIagyFJazrBbgQINaJ2_row-1\", \"type\": \"row\", \"label\": \"row\", \"hashid\": \"nR96WQKGWSQY\", \"display\": true, \"components\": [], \"placeholder\": \"row\"}]",
+  "variableArr": "[{\"code\": \"000071OWIagyFJazrBbgQINaJ2_row-1\", \"variableName\": \"row\", \"variableType\": \"row\"}]",
+  "statusForm": 3,
+  "tag": "",
+  "beginTime": {
+    "seconds": 1772557200,
+    "nanos": 0
+  },
+  "endTime": {
+    "seconds": 2511968399,
+    "nanos": 0
+  },
+  "userId": 159822,
+  "createdBy": "kyta_ptsc@yopmail.com",
+  "orgIn": "/6306/14366",
+  "custId": 6306,
+  "createdDate": {
+    "seconds": 1772943163,
+    "nanos": 0
+  },
+  "lastModifiedBy": "kyta_ptsc@yopmail.com",
+  "lastModifiedDate": {
+    "seconds": 1772944404,
+    "nanos": 665593000
+  },
+  "jsonFormCondition": "[]"
+}
+Backend

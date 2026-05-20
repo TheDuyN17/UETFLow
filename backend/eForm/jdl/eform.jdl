@@ -1,0 +1,101 @@
+ entity Form {
+    @id formId String,
+    formName String,
+    formCode String,
+    description String,
+    jsonForm String,
+     variableArr String,
+    statusForm Long,
+    tag String,
+    beginTime Instant,
+    endTime Instant,
+    userId Long,
+    createdBy String,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    lastModifiedBy String,
+    lastModifiedDate Instant
+}
+
+entity Acl {
+    @id idAcl String ,
+    formId String,
+    userId Long,
+    email String,
+    status Long,
+    createdBy String,
+    role Long,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    lastModifiedBy String,
+    lastModifiedDate Instant
+}
+
+entity Version {
+    @id versionId String,
+    versionName String,
+    formId String,
+    action String,
+    description String,
+    active Boolean,
+    formName String,
+    formCode String,
+    description String,
+    jsonForm String,
+    variableArr String,
+    statusForm Long,
+    tag String,
+    beginTime Instant,
+    endTime Instant,
+    afterChange String,
+    beforeChange String,
+    userId Long,
+    createdBy String,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    lastModifiedBy String,
+    lastModifiedDate Instant
+}
+
+entity StorageFile {
+    @id id String,
+    bucket String,
+    path String,
+    status Integer,
+    userId Long,
+    createdBy String,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    lastModifiedBy String,
+    lastModifiedDate Instant
+}
+
+entity Procedures {
+    @id id String,
+    formId String,
+    procedureId String,
+    procedureName String,
+    stepId String,
+    stepName String,
+    userId Long,
+    createdBy String,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    versionId String
+}
+
+entity ApiInfo {
+    @id id String,
+    domain String,
+    path String,
+    header String,
+    request String,
+    responseAPI String,
+    createdBy String
+    createdDate Instant
+}

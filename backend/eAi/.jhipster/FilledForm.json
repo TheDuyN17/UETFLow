@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20260418052339"
+  },
+  "applications": ["docform"],
+  "clientRootFolder": "docform",
+  "databaseType": "sql",
+  "fields": [
+    {
+      "fieldName": "formName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "filledData",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "confidence",
+      "fieldType": "Double"
+    },
+    {
+      "fieldName": "geminiModel",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "processedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "missingFields",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    }
+  ],
+  "microserviceName": "docform",
+  "name": "FilledForm",
+  "relationships": [
+    {
+      "otherEntityName": "documentExtraction",
+      "relationshipName": "document",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no"
+}

@@ -1,0 +1,46 @@
+{
+  "name": "ApiInfo",
+  "fields": [
+    {
+      "fieldName": "domain",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "path",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "header",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "request",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "responseAPI",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "createdBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "createdDate",
+      "fieldType": "Instant"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20240123041128",
+  "entityTableName": "api_info",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "eform",
+  "applications": "*",
+  "microserviceName": "eform"
+}

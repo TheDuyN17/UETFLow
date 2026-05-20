@@ -1,0 +1,54 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
+        
+    - name: Make mvnw executable
+      run: chmod +x mvnw
+
+    - name: Test with Maven
+      run: ./mvnw -B test --file pom.xml
+
+    - name: Run Dedicated Logic Verification
+      if: always()
+      run: |
+        ./mvnw test -Dtest=APICustomLogicIntTest -DfailIfNoTests=false
+
+    - name: Publish API Logic Test Results
+      if: always()
+      run: |
+        if [ -f target/api-test-results.md ]; then
+          cat target/api-test-results.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "No API results table found." >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Publish Test Report (XML)
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          target/surefire-reports/*.xml
+

@@ -1,0 +1,12 @@
+
+  ${AnsiColor.GREEN}    ______        ${AnsiColor.RED}     ______
+  ${AnsiColor.GREEN}   / ____/        ${AnsiColor.RED}    / ____/___  _________ ___
+  ${AnsiColor.GREEN}  / __/    ______ ${AnsiColor.RED}   / /_  / __ \/ ___/ __ `__ \
+  ${AnsiColor.GREEN} / /__/   ______  ${AnsiColor.RED}  / __/ / /_/ / /  / / / / / /
+  ${AnsiColor.GREEN}/_____/           ${AnsiColor.RED} /_/    \____/_/  /_/ /_/ /_/
+
+
+
+
+${AnsiColor.BRIGHT_BLUE}:: E-Form 🤓  :: Running Spring Boot ${spring-boot.version} ::
+:: https://www.jhipster.tech ::${AnsiColor.DEFAULT}

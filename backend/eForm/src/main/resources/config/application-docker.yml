@@ -1,0 +1,73 @@
+logging:
+  level:
+    ROOT: INFO
+    io.github.jhipster: INFO
+    com.vnu.uet: INFO
+
+spring:
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://mysql:3306/eform?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  liquibase:
+    contexts: prod
+  thymeleaf:
+    cache: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: -1
+      file-size-threshold: 0B
+      resolve-lazily: false
+
+server:
+  port: 8082
+
+jhipster:
+  mail:
+    base-url: http://localhost:8082
+  metrics:
+    logs:
+      enabled: false
+      report-frequency: 60
+  logging:
+    use-json-format: false
+    logstash:
+      enabled: false
+      host: localhost
+      port: 5000
+      queue-size: 512
+  audit-events:
+    retention-period: 30
+
+application:
+  uaa-name: http://eaccount:8081
+  eflow-url: http://eflow:8083
+
+xform-central:
+  url: http://eaccount:8081
+fptcloud:
+  s3:
+    endpoint:
+    expTime: '86400000'
+    expDate: '36500'
+    region: fpt
+    bucket: econ-eform-dev-2
+    access_key_id:
+    secret_access_key:

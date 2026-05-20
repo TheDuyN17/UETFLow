@@ -1,0 +1,146 @@
+1)  Hệ  thống  dựa  trên  a)  Thông  tin  chung  
+ -  Hệ  thống  xử  lý  đa  dạng  nghiệp  vụ  
+ -  11  service  cho  người  dùng,  8  service  cho  BI,  13  service  phụ  trách  quản  lý  và  điều  
+hướng
+ 
+(các
+ 
+service
+ 
+cho
+ 
+AI
+ 
+agent
+ 
+chưa
+ 
+được
+ 
+tính
+ 
+vào
+ 
+trong
+ 
+này)
+ 
+1  
+
+b)  Nghiệp  vụ  chọn  để  triển  khai  (xử  lý  hồ  sơ)  -  Cho  người  dùng:   +  Đăng  nhập:  
+      +  Giám  sát  việc:  
+    
+2  
+
++  Tạo  yêu  cầu  và  xử  lý  và  giám  sát  tiến  độ:  
+   
+ 
+3  
+
+   +  Ký  
+            
+4  
+
+ 
+-  Cho  BI  (tài  khoản  admin):   +  Tạo  form  
+   +  Tạo  hồ  sơ  số  
+     
+5  
+
++  Tạo  luồng  thực  thi  
+ +  Thiết  lập  tài  khoản  người  dùng  
+   
+6  
+
++  Phân  loại  tài  khoản  
+  +  Kiểm  tra  sự  cố   
+   
+7  
+
+2)  Thay  đổi  a)  Về  hệ  thống  -  Cũ:  hệ  thống  hiện  tại  được  thiết  kế  theo  mô  hình  những  con  điều  phối  sẽ  phụ  trách  ở  
+trung
+ 
+tâm
+ 
+còn
+ 
+các
+ 
+service
+ 
+ở
+ 
+xung
+ 
+quanh
+ 
+ -  Mới:  eRequest  sẽ  phụ  trách  điều  phối  còn  các  con  kia  sẽ  chỉ  được  gửi  dữ  liệu  
+ 
+b)  Về  nghiệp  vụ -  Mới:   +  Bỏ  những  cái  đã  thực  hiện  (bỏ  eTask)  +  Không  xài  chữ  ký  số  nữa  (bỏ  eContract)  +  Không  cần  giao  diện  cho  hợp  đồng  số  nữa  (bỏ  eWriter)  +  Trong  eFlow,  không  cho  tự  động  nhập  tài  khoản  nữa  (bỏ  eCatalogue)  
+8  
+
++  Không  lưu  tài  khoản  theo  tree  nữa  (sửa  lại  eAccount)  
+c)  Về  hoạt  động  trong  service -  eForm:   +  Giữ  nguyên:  +  Vẫn  chịu  trách  nhiệm  cung  cấp  input  vào   +  Vẫn  cho  phép  thiết  kế  bố  cục  +  Thay  đổi:  +  Sử  dụng  làm  cái  hiển  thị  thay  trong  eFlow  và  eRequest  thay  eWriter  +  Vô  hiệu  hóa  khả  năng  tự  động  điền  thông  tin  +  Lược  bỏ  bớt  1  số  tính  năng  như  chân  ký,  trình  chiếu,  tải  file,  …  -  eFlow:  +  Giữ  nguyên:  +  Vẫn  thiết  kế  luồng  thực  thi  dựa  trên  các  node  +  Vẫn  cho  phép  các  form  kế  thừa  dữ  liệu  của  nhau  +  Thay  đổi:   +  Nhập  email  thủ  công  thay  vì  nhập  tự  động  +  Bỏ  khả  năng  thông  báo  nữa  (bỏ  eNotify)  +  Bỏ  khả  năng  lấy  thông  dữ  liệu  tài  khoản  (do  ko  có  eCatalogue)  +  Bỏ  khả  năng  lưu  lịch  sử   +  Chỉ  còn  cho  khả  năng  phê  duyệt  dựa  trên  tài  khoản  (chỉ  còn  sử  dụng  cái  
+bắt
+ 
+đầu,
+ 
+kết
+ 
+thúc
+ 
+và
+ 
+node
+ 
+eAccount
+ 
+chứ
+ 
+không
+ 
+dùng
+ 
+các
+ 
+node
+ 
+của
+ 
+service
+ 
+khác
+ 
+nữa)
+ +  Giảm  khả  năng  sử  dụng  dữ  liệu  kế  thừa  để  điều  phối  luồng  (cho  phép  
+sử
+ 
+dụng
+ 
+tick
+ 
+nhưng
+ 
+không
+ 
+cho
+ 
+xài
+ 
+input
+ 
+động
+ 
+cũng
+ 
+như
+ 
+drop
+ 
+down)
+  
+ -  eAccount:  +  Giữ  nguyên:  +  Vẫn  cho  phép  lưu  thông  tin  người  dùng  +  Thay  đổi:  +  Dữ  liệu  không  còn  lưu  theo  kiểu  tree  (ko  dùng  NoSQL  nữa)  +  Tắt  phân  quyền  của  admin  (không  cho  phép  chỉnh  quyền  động)  +  Chỉ  còn  được  sử  dụng  để  định  danh  +  Không  còn  là  trang  vào  mặc  định  sau  login  +  Admin  có  quyền  chặn  và  xóa  tài  khoản  theo  email  -  eRequest:   +  Giữ  nguyên:  +  Vẫn  cho  phép  gửi  yêu  cầu,  phê  duyệt  yêu  cầu,  xem  luồng  +  Thay  đổi:  +  Là  con  điều  phối,  sẽ  gọi  các  service  khác  +  Là  trang  mặc  định  vào  sau  login  +  Chỉ  còn  có  thể  tạo  giao  dịch  và  xem  giao  dịch  cần  xử  lý  +  Với  user  thì  chỉ  xem  được  giao  dịch  đang  thực  hiện    
+9  
+d)  Về  mô  hình  -  Môi  trường:  Không  sài  Nifi  với  temporal  -  Backend:  hạn  chế  dùng  S3,  dùng  java  21  thay  cho  java  11  -  Frontend:  không  cho  BI  được  code  hoạt  động  thực  thi   
+3)  Về  AI  -  Thời  gian:  sẽ  được  viết  khi  xong  các  con  trên  -  Về  nhiệm  vụ :  sẽ  phụ  trách  gửi  yêu  cầu  -  Về  thao  tác :  người  dùng  có  thể  nhập  thủ  công  dữ  liệu  hoặc  chọn  AI  để  nó  nhập  -  Về  hành  động:  người  dùng  sẽ  phải  gửi  pdf  lên  -  Về  cải  tiến:  sử  dụng  S3,  gemini  -  Về  thời  gian:  sẽ  không  thực  hiện  luôn  mà  lưu  lại  dưới  dạng  pdf  2  lớp  rồi  xử  lý  dần  
+10  

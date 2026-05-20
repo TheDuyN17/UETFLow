@@ -1,0 +1,43 @@
+# Logs
+*.log
+
+# Java / Maven / Spring Boot
+target/
+*.class
+*.jar
+*.war
+.mvn/
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.next/
+.cache/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker volumes
+postgres-data/
+mysql-data/
+
+# Misc
+PROMPT_FOR_BACKEND.md

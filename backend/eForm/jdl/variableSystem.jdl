@@ -1,0 +1,29 @@
+entity VariableSystem {
+    id String
+    variableSystem String
+    createdBy String,
+    userId Long,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    lastModifiedBy String,
+    lastModifiedDate Instant
+}
+
+entity VariableSystemAcl {
+    id String
+    varId String
+    perm String
+    permType Long
+    assigneeId Long
+    assignee String
+    authorizerId Long
+    authorizer String
+    createdBy String,
+    userId Long,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    lastModifiedBy String,
+    lastModifiedDate Instant
+}

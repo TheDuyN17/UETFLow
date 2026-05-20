@@ -1,0 +1,165 @@
+
+# ===================================================================
+# Spring Boot configuration for the "dev" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# More information on profiles: https://www.jhipster.tech/profiles/
+# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+logging:
+  level:
+    ROOT: DEBUG
+    io.github.jhipster: DEBUG
+    com.vnu.uet: DEBUG
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+#      defaultZone: http://admin:${jhipster.registry.password}@10.15.68.24:8761/eureka/
+#      defaultZone: http://admin:${jhipster.registry.password}@10.14.121.18:30500/eureka/
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  codec:
+    max-in-memory-size: 50MB
+  profiles:
+    active: dev
+    include:
+      - swagger
+      # Uncomment to activate TLS for the dev profile
+      #- tls
+  devtools:
+    restart:
+      enabled: true
+      additional-exclude: static/**
+    livereload:
+      enabled: false # we use Webpack dev server + BrowserSync for livereload
+  jackson:
+    serialization:
+      indent-output: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://localhost:3306/eform_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password: 
+#    url: jdbc:mysql://localhost:3306/eform_test2?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+#    username: root
+#    password: vuduc2010
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  jpa:
+    show-sql: true
+  liquibase:
+    # Remove 'faker' if you do not want the sample data to be loaded automatically
+    contexts: dev, faker
+  mail:
+    host: localhost
+    port: 25
+    username:
+    password:
+  messages:
+    cache-duration: PT1S # 1 second, see the ISO 8601 standard
+  thymeleaf:
+    cache: false
+  sleuth:
+    sampler:
+      probability: 1 # report 100% of traces
+  zipkin: # Use the "zipkin" Maven profile to have the Spring Cloud Zipkin dependencies
+    base-url: http://localhost:9411
+    enabled: false
+    locator:
+      discovery:
+        enabled: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: -1
+      file-size-threshold: 0B
+      location: #
+      resolve-lazily: false
+
+server:
+  port: 8081
+
+  # ===================================================================
+  # JHipster specific properties
+  #
+  # Full reference is available at: https://www.jhipster.tech/common-application-properties/
+  # ===================================================================
+
+jhipster:
+  # CORS is disabled by default on microservices, as you should access them through a gateway.
+  # If you want to enable it, please uncomment the configuration below.
+  # cors:
+  #     allowed-origins: "*"
+  #     allowed-methods: "*"
+  #     allowed-headers: "*"
+  #     exposed-headers: "Authorization,Link,X-Total-Count"
+  #     allow-credentials: true
+  #     max-age: 1800
+
+  mail: # specific JHipster mail property, for standard properties see MailProperties
+    base-url: 
+  metrics:
+    logs: # Reports metrics in the logs
+      enabled: false
+      report-frequency: 60 # in seconds
+  logging:
+    use-json-format: false # By default, logs are not in Json format
+    logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
+      enabled: false
+      host: localhost
+      port: 5000
+      queue-size: 512
+  audit-events:
+    retention-period: 30 # Number of days before audit events are deleted.
+
+# ===================================================================
+# Application specific properties
+# Add your own application properties here, see the ApplicationProperties class
+# to have type-safe configuration, like in the JHipsterProperties above
+#
+# More documentation is available at:
+# https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+# application:
+application:
+  uaa-name: uaa
+fptcloud:
+  s3:
+    endpoint: 
+    expTime: '86400000' #ms
+    expDate: '36500' #date
+    region: fpt
+    bucket: econ-eform-dev-2
+    access_key_id:
+    secret_access_key: 
+#fptcloud:
+#  s3:
+#    endpoint: https://s3-hfx03.fptcloud.com:443
+#    expTime: '86400000' #ms
+#    expDate: '36500' #date
+#    region: fpt
+#    bucket: econ-eform-dev
+#    access_key_id: U5MSIVPHZMFCABP7NSD0
+#    secret_access_key: 4q13SxOYM5r4pyUtraKnBKl4BwulyErt2DBum7IO
+

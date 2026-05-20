@@ -1,0 +1,186 @@
+﻿1. Thông tin chung
+1. NGỮ CẢNH & YÊU CẦU NGHIỆP VỤ
+Input:
+* 1 file PDF (giấy tờ hành chính: giấy khai sinh, CMND, hộ khẩu, giấy tờ kê khai…)
+* form_id (ví dụ: birth_certificate_vn, id_card_declaration…)
+Output: JSON form đã được điền đầy đủ dữ liệu theo template từ service khác.
+Quy trình chính (3 bước cốt lõi):
+1. Nhận PDF → trích xuất text → lưu database.
+2. Gọi API service khác theo form_id → nhận về form template (JSON).
+3. Gửi text + form JSON cho Gemini → Gemini điền dữ liệu → trả về JSON hoàn chỉnh.
+________________
+
+
+2. KIẾN TRÚC TỔNG THỂ (Java + JHipster Stack)
+Stack được chọn:
+* Framework: Java + JHipster (Microservice Application)
+* Database: MySQL (sử dụng JSON column)
+* File storage: AWS S3
+* Authentication: JWT (từ JHipster Gateway)
+* AI: Google Gemini (gemini-2.0-flash hoặc gemini-2.5-pro)
+* PDF Extraction: Apache PDFBox + Tesseract OCR (Tess4J) hoặc Gemini Vision
+* Async: Spring @Async + CompletableFuture (hoặc Kafka nếu cần scale lớn)
+Cấu trúc microservice:
+* Tên service: docform hoặc document-mapper
+* Sử dụng JHipster Registry / Consul cho service discovery
+* Expose qua JHipster API Gateway
+________________
+
+
+3. FLOW XỬ LÝ CHI TIẾT
+1. Client gọi POST /api/document-maps (multipart file + formName).
+2. Upload PDF lên AWS S3 → lấy S3 key.
+3. Trích xuất text từ PDF (PDFBox cho native PDF, Tesseract/Gemini Vision cho scanned PDF).
+4. Lưu thông tin vào bảng document_extraction.
+5. Gọi API ngoài lấy form template theo form_id (cache Redis nếu cần).
+6. Gọi Gemini API với system prompt + extracted text + form template.
+7. Gemini trả về JSON đã điền (sử dụng structured output).
+8. Validate JSON → lưu vào bảng filled_form.
+9. Trả kết quả cho client (có confidence score và missing_fields).
+Xử lý async: Sử dụng @Async để không block API.
+________________
+
+
+4. DEPENDENCIES CHÍNH (pom.xml)
+XML
+<!-- PDF -->
+<dependency>
+    <groupId>org.apache.pdfbox</groupId>
+    <artifactId>pdfbox</artifactId>
+    <version>3.0.3</version>
+</dependency>
+
+
+<!-- AWS S3 -->
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>s3</artifactId>
+    <version>2.28.0</version>
+</dependency>
+
+
+<!-- Google Gemini SDK -->
+<dependency>
+    <groupId>com.google.genai</groupId>
+    <artifactId>google-genai</artifactId>
+    <version>1.x.x</version>
+</dependency>
+
+
+<!-- Tesseract OCR (nếu cần scanned PDF) -->
+<dependency>
+    <groupId>net.sourceforge.tess4j</groupId>
+    <artifactId>tess4j</artifactId>
+    <version>5.11.0</version>
+</dependency>
+________________
+
+
+5. DATABASE SCHEMA (JHipster JDL)
+jdl
+entity DocumentExtraction {
+    s3Key String required maxlength(500)
+    formName String required maxlength(100)
+    rawText String maxlength(65535)  // LONGTEXT
+    status String maxlength(20)
+    extractedAt Instant
+}
+
+
+entity FilledForm {
+    formName String required maxlength(100)
+    filledData String  // JSON column (MySQL 8+)
+    confidence Double
+    geminiModel String maxlength(50)
+    processedAt Instant
+    missingFields String maxlength(1000)
+}
+
+
+relationship ManyToOne {
+    FilledForm{document} to DocumentExtraction
+}
+________________
+
+
+6. GEMINI INTEGRATION & PROMPT TỐI ƯU
+System Prompt (cố định):
+text
+Bạn là chuyên gia khai form hành chính Việt Nam.
+Nhiệm vụ: Điền đầy đủ thông tin vào form JSON dựa trên text trích xuất từ giấy tờ.
+Quy tắc nghiêm ngặt:
+- Chỉ dùng dữ liệu có trong extracted_text.
+- Nếu thiếu trường nào → đặt giá trị null và ghi vào "missing_fields".
+- Giữ đúng cấu trúc JSON, không thêm key mới.
+- Xử lý tốt tiếng Việt, ngày tháng, họ tên có dấu.
+- Trả về JSON hợp lệ, không có markdown.
+7. AWS S3 INTEGRATION
+* Upload PDF ngay khi nhận request.
+* Sử dụng S3AsyncClient hoặc TransferManager cho file lớn.
+* Key format: documents/{uuid}/{originalFilename}
+* Hỗ trợ presigned URL để download sau.
+* Sử dụng SSE (Server-Side Encryption) cho dữ liệu nhạy cảm.
+________________
+
+
+8. API ENDPOINTS (FastAPI style – nhưng JHipster Rest Controller)
+* POST /api/document-maps → nhận file + formName (trả taskId ngay).
+* GET /api/document-maps/{taskId}/status → kiểm tra tiến độ.
+* GET /api/document-maps/{id}/result → trả JSON đã điền.
+* POST /api/document-maps/sync → dùng cho test (blocking).
+________________
+
+
+9. XỬ LÝ EDGE CASES & RỦI RO
+Rủi ro
+	Giải pháp
+	PDF scan mờ, tiếng Việt
+	Gemini Vision hoặc Tesseract + PDFBox
+	Gemini rate limit
+	@Async + retry logic
+	Form template thay đổi
+	Version form (form_id@v1)
+	Dữ liệu nhạy cảm
+	S3 SSE + encrypt tại rest + audit log
+	Sai mapping
+	Confidence score + missing_fields + review queue
+	Chi phí
+	Ưu tiên Gemini 2.0 Flash (rẻ)
+	 B) API
+1. Nhóm API Tương tác với Người dùng (Client-facing APIs)
+Đây là các API được expose qua API Gateway để Frontend hoặc người dùng cuối tương tác trực tiếp nhằm thực hiện tác vụ chuyển đổi tài liệu.
+* POST /api/document-maps (Xử lý bất đồng bộ)
+   * Mục đích: Nhận file PDF và khởi chạy tiến trình trích xuất dữ liệu.
+   * Input: Multipart file (PDF) và formName (ví dụ: id_card_declaration).
+   * Output: Trả về ngay lập tức một taskId (UUID) để Client theo dõi tiến độ mà không phải chờ đợi.
+* GET /api/document-maps/{taskId}/status
+   * Mục đích: Client sử dụng taskId để kiểm tra trạng thái của quá trình xử lý (Đang chờ, Đang trích xuất text, Đang gọi AI, Hoàn thành, hoặc Lỗi).
+   * Output: Trạng thái hiện tại của tác vụ (processing, completed, failed).
+* GET /api/document-maps/{taskId}/result
+   * Mục đích: Lấy kết quả JSON cuối cùng sau khi AI đã xử lý xong.
+   * Output: Chuỗi JSON chứa dữ liệu đã điền, điểm tin cậy (Confidence Score) và danh sách các trường bị thiếu (missing_fields).
+2. Nhóm API Nội bộ (Internal/System Integration APIs)
+Nhóm này phục vụ việc tích hợp sâu giữa AI Service với các service hạt nhân như eRequest và eForm.
+* POST /api/request/ai/create-from-pdf (Gọi sang eRequest)
+   * Mục đích: Sau khi eAI hoàn tất trích xuất và lưu vào bảng FilledForm, nó sẽ gọi API này của eRequest để tự động khởi tạo một Ticket (Giao dịch) ở trạng thái Nháp.
+   * Input: form_data (JSON) và s3Key của file gốc.
+* GET /api/request/ai/verify-data (Cung cấp thông tin cho eRequest)
+   * Mục đích: Phục vụ giao diện kiểm tra của người dùng tại eRequest để xác nhận lại các trường AI đã điền tự động.
+* API gọi sang eForm/eFlow (Outbound):
+   * AI Service thực hiện gọi API nội bộ sang eForm để lấy cấu trúc (Schema) của biểu mẫu mẫu theo form_id trước khi gửi cho Gemini.
+3. Nhóm API Kiểm tra (Testing & Debugging APIs)
+Dành cho lập trình viên và kiểm thử viên để xác minh logic xử lý mà không cần qua luồng phức tạp.
+* POST /api/document-maps/sync (Xử lý đồng bộ)
+   * Mục đích: Dùng cho mục đích kiểm thử (blocking mode). Hệ thống sẽ giữ kết nối cho đến khi trích xuất và gọi AI xong để trả về kết quả JSON ngay lập tức.
+   * Tiện ích: Giúp kiểm tra nhanh độ chính xác của Prompt và khả năng trích xuất văn bản (PDFBox/Tesseract).
+* GET /api/document-maps/{taskId}/raw-text
+   * Mục đích: Xem lại nội dung văn bản thô (rawText) mà hệ thống đã tiền xử lý từ PDF.
+   * Tác dụng: Giúp BI Admin đối chiếu xem lỗi nằm ở bước trích xuất văn bản hay lỗi ở bước Gemini suy luận dữ liệu.
+4. Nhóm Mock API (Phục vụ phát triển độc lập)
+Trong giai đoạn đầu khi các service chưa hoàn thiện, bạn cần xây dựng các Mock API để test logic của AI Service.
+* Mock eForm API:
+   * Endpoint: GET /api/internal/form-template?name={formName}.
+   * Response giả lập: Trả về một cấu trúc JSON mẫu với các variable_code để AI Service có cái để ánh xạ.
+* Mock Gemini Gateway:
+   * Mục đích: Giả lập phản hồi của Gemini API (trong trường hợp chưa có API Key hoặc muốn tiết kiệm chi phí lúc test code logic).
+   * Response giả lập: Một chuỗi JSON hợp lệ được "điền sẵn" dựa trên nội dung text đầu vào cố định.

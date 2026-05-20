@@ -1,0 +1,69 @@
+{
+  "name": "Acl",
+  "fields": [
+    {
+      "fieldName": "idAcl",
+      "fieldType": "Long",
+      "options": {
+        "id": true
+      }
+    },
+    {
+      "fieldName": "formId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "userId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "email",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "createdBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "role",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "orgIn",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "custId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "createdDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "lastModifiedBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "lastModifiedDate",
+      "fieldType": "Instant"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20240123040728",
+  "entityTableName": "acl",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "eform",
+  "applications": "*",
+  "microserviceName": "eform"
+}

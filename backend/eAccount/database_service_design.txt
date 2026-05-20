@@ -1,0 +1,92 @@
+# Thiết kế Database và Tầng Service - eAccount
+
+Dựa trên yêu cầu và danh sách API đã được thống nhất, dưới đây là thiết kế chi tiết về cấu trúc Cơ sở dữ liệu (Database Schema) và các Service (Tầng Business Logic) tương ứng.
+
+---
+
+## 1. Thiết kế Cơ sở Dữ liệu (Database Schema)
+
+JHipster cung cấp entity `User` và bảng `jhi_user` mặc định quản lý hệ thống đăng nhập lõi. Để đáp ứng các tính năng trên, ta sẽ mở rộng bằng cách tạo một table chuyên biệt để lưu thông tin nghiệp vụ và một table để quản lý ma trận quyền hạn động.
+
+### A. Thực thể `UserProfile` (Mở rộng từ User)
+Vì không nên thay đổi quá sâu vào mã nguồn sinh tự động Core User của JHipster (để dễ nâng cấp sau này), ta sử dụng mối quan hệ **One-to-One** với `User`.
+- **Bảng:** `user_profile`
+- **Các trường dữ liệu (Fields):**
+  - `id` (Long): Khóa chính.
+  - `phone` (String, required, unique): Số điện thoại.
+  - `dob` (Instant/LocalDate): Ngày tháng năm sinh.
+  - `gender` (Enum: MALE, FEMALE, OTHER): Giới tính.
+  - `position` (String): Vị trí.
+  - `job` (String): Công việc.
+  - `department` (String): Đơn vị trực thuộc.
+- **Mối quan hệ (Relationships):**
+  - `OneToOne` với thực thể `User` (JHipster base User) lấy gốc là `email` và `avatar(imageUrl)`.
+
+### B. Thực thể quản lý Quyền `PermissionMatrix`
+JHipster có sẵn `Authority` (chứa tên role String, vd: `ROLE_ADMIN`). Tuy nhiên thiết kế yêu cầu quyền là số âm/dương. Do đó ta sẽ ánh xạ các con số nguyên này thành tên Authority (ví dụ: `-1` là `ROLE_MINUS_1`, `1` là `ROLE_PLUS_1`) trong bảng `jhi_authority` mặc định.
+*Hoặc* ta tạo một thực thể riêng nếu muốn chủ động quản lý số:
+- **Bảng:** `user_permission`
+- **Các trường dữ liệu:**
+  - `id` (Long): Khóa chính.
+  - `permissionValue` (Integer, required): Giá trị quyền (-1, 1, 2, 3, 4, 5).
+  - `description` (String): Mô tả quyền (Ví dụ: "Quản lý nhân sự").
+- **Mối quan hệ:**
+  - `ManyToMany` với `User` (Một user có nhiều quyền, một quyền áp dụng cho nhiều user).
+
+*=> Đề xuất:* Sử dụng bảng `jhi_authority` mặc định của JHipster, nhét các mã quyền dạng chuỗi (vd "PERM_-1", "PERM_1") vào để tiết kiệm việc tạo cơ chế xác thực riêng với Spring Security. 
+
+---
+
+### C. Thực thể Quản lý Token (UserToken)
+Để hỗ trợ quản lý trạng thái đăng nhập, refresh token, hoặc thu hồi quyền truy cập chủ động (kiểm soát bảo mật nâng cao thay vì chỉ dùng JWT tĩnh), ta cần một bảng quản lý Token.
+- **Bảng:** `user_token`
+- **Các trường dữ liệu:**
+  - `id` (Long): Khóa chính.
+  - `tokenStr` (String, required): Giá trị của refresh token hoặc JTI (JWT ID).
+  - `expiryDate` (Instant, required): Thời điểm hết hạn.
+  - `isRevoked` (Boolean): Đánh dấu token đã bị thu hồi (để block lúc user đăng xuất).
+  - `createdAt` (Instant): Thời điểm tạo.
+- **Mối quan hệ:**
+  - `ManyToOne` với `User` (Một user có thể đăng nhập trên nhiều thiết bị -> có nhiều token).
+
+*(Lưu ý: Nếu ý bạn về "quản lý CI/CD" là lưu vết các lần deploy/build trên backend, ta có thể tạo thêm một bảng `CicdDeploymentLog` với các trường như `commitId`, `status`, `deploymentTime`. Tuy nhiên, bảng `user_token` thường thiết thực hơn cho luồng nghiệp vụ eAccount hiện tại).*
+
+---
+
+## 2. Thiết kế Tầng Service (Services Layer)
+
+Các Service chịu trách nhiệm chứa "Business Logic" (Luồng nghiệp vụ xử lý thực tế), gọi xuống DB (via Repository) tính toán vòng lặp, quyền, và trả kết quả lên Controller API.
+
+### A. `UserProfileService`
+- **Mục đích:** Xử lý logic liên quan đến thông tin cá nhân (Quyền -1) và User Profile gốc.
+- **Functions chính:**
+  - `getCurrentUserProfile()`: Lấy thông tin user đăng nhập.
+  - `updateProfile(UpdateDTO dto)`: Cập nhật các trường được phép thay đổi. **Sẽ phối hợp đồng bộ gọi `FileStorageService`** nếu dto có chứa file ảnh upload lên cho avatar.
+  - `createUser(CreateDTO dto)`: Gọi hàm mã hóa password tự sinh, lưu vào `jhi_user`, sau đó tạo `user_profile` và gán Authority mặc định (PERM_-1). (Dành cho chức năng tạo mới nhân sự).
+
+### B. `FileStorageService` (Xử lý lưu trữ S3)
+- **Mục đích:** Chịu trách nhiệm luân chuyển dữ liệu file định dạng nhị phân (ảnh Avatar, tài liệu định danh nếu có) lên cloud storage (GCP/AWS S3/MinIO) để tránh làm nặng database.
+- **Functions chính:**
+  - `uploadAvatar(MultipartFile file, String email)`: Băm tên file, nén ảnh, đẩy lên S3 bucket, và trả về đường dẫn URL công khai.
+  - `deleteAvatar(String fileUrl)`: Xóa ảnh cũ trên S3 để giải phóng dung lượng khi user cập nhật ảnh mới.
+
+### C. `PermissionManagementService`
+- **Mục đích:** Quản lý logic gán, kiểm tra, và xử lý liên quan đến các Authority/Quyền.
+- **Functions chính:**
+  - `getUserPermissions(String email)`: Trả về danh sách [ -1, 1, 2... ].
+  - `assignPermissions(String email, List<Integer> permissions)`: Xử lý logic Thêm.
+  - `removePermissions(String email, List<Integer> permissions)`: Xử lý logic Xóa.
+  - `checkServiceAccess(String email, Integer requiredPerm)`: Dành cho inter-service.
+
+### D. `AccountManagementService`
+- **Mục đích:** Xử lý nghiệp vụ phức tạp của Quyền 1 và Quyền 4 (Tìm kiếm, Cấp phép xóa, Xóa thực sự).
+- **Functions chính:**
+  - `searchUserBasicInfo(String email)`: Lấy dữ liệu an toàn.
+  - `checkIfDeletable(String targetEmail, String requesterEmail)`: Kiểm tra thẩm quyền cấp bậc âm dương.
+  - `deleteUserAccount(String email)`: Xóa tài khoản (xóa mềm/cứng) và đồng thời gọi sang `FileStorageService` để xóa ảnh avatar trên S3; dọn dẹp các token liên quan.
+
+### E. `AuthInterService` & `TokenManagementService`
+- **Mục đích:** Phục vụ bảo mật liên service và quản lý vòng đời token.
+- **Functions chính:**
+  - `verifyEmailAndPassword(String email, String rawPassword)`: Kiểm tra logic đăng nhập.
+  - `revokeTokensForUser(String email)`: (Mới) Thu hồi toàn bộ token đăng nhập khi user bị xóa tài khoản hoặc bị hạ cấp quyền (gọi vào bảng `user_token`).

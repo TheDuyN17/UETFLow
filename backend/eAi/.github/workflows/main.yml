@@ -1,0 +1,72 @@
+name: eAI - CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
+        
+    - name: Make mvnw executable
+      run: chmod +x mvnw
+
+    - name: 1. Kiểm tra Build & Đóng gói (Maven Package)
+      run: ./mvnw -B clean package -DskipTests
+
+    - name: 2. Chạy thử Kịch Bản Logic eAI (Unit/Integration Test)
+      if: always()
+      run: |
+        ./mvnw test -Dtest=APICustomLogicIntTest -DfailIfNoTests=false
+
+    - name: 3. Tổng hợp Báo cáo Kịch bản Test Logic
+      if: always()
+      run: |
+        if [ -f target/api-test-results.md ]; then
+          cat target/api-test-results.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Không tìm thấy file báo cáo api-test-results.md!" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: 4. Build Docker container bằng Jib (Đóng gói Container)
+      if: success()
+      run: ./mvnw package -Pprod verify jib:dockerBuild -DskipTests
+
+    - name: 5. Khởi động ứng dụng trong Docker (Chạy thử Container)
+      if: success()
+      run: |
+        docker compose up -d
+        
+    - name: 6. Kiểm tra Smoke Test (Chạy được không?)
+      if: success()
+      run: |
+        echo "Đang chờ dịch vụ eAi (và MySQL) khởi động..."
+        for i in {1..40}; do
+          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8084/management/health || true)
+          if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "401" ]; then
+            echo "✅ Dịch vụ đã phản hồi ở cổng 8084 (HTTP $HTTP_STATUS)"
+            exit 0
+          fi
+          echo "Đang thử lại ($i/40)..."
+          sleep 5
+        done
+        echo "❌ Dịch vụ không khởi động thành công trong Docker. Hiển thị logs:"
+        docker compose logs
+        exit 1

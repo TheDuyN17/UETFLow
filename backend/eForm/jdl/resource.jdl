@@ -1,0 +1,28 @@
+entity Folder {
+    id UUID,
+    folderName String,
+    folderParentId UUID,
+    createdBy String,
+    userId Long,
+    orgIn String,
+    custId Long,
+    createdDate Instant,
+    lastModifiedBy String,
+    lastModifiedDate Instant
+}
+
+entity FolderForm {
+    id String,
+    folderId UUID,
+    formId String,
+    createdDate Instant
+}
+
+entity Closure {
+    id String,
+    ancestor UUID,
+    descendant UUID,
+    depth Long
+}
+
+service all with serviceImpl

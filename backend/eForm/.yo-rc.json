@@ -1,0 +1,38 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.fis.fpt"
+    },
+    "jhipsterVersion": "6.10.5",
+    "applicationType": "microservice",
+    "baseName": "eform",
+    "packageName": "com.fis.fpt",
+    "packageFolder": "com/fis/fpt",
+    "serverPort": "8081",
+    "authenticationType": "uaa",
+    "uaaBaseName": "uaa",
+    "cacheProvider": "no",
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": "eureka",
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "YmU2OGVlN2MwZjJhMDcyMTVjNmE0ZGE0MmQwMjE3Y2Q3Y2YxYjljMzc1MzczOThhMDgxY2Y1N2E4YzIyYWM2N2JmYjE3NjJiOTljMDIwYjQwMzY4MTk1NzQyOTE0YWE2ZGViNDY5YmI5ZTYxMGU3MGQyZDhhMjY4OWU5OTcwODI=",
+    "embeddableLaunchScript": false,
+    "creationTimestamp": 1698740365178,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false,
+    "clientPackageManager": "npm",
+    "blueprints": [],
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}

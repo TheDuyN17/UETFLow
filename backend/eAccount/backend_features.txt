@@ -1,0 +1,71 @@
+# Đề xuất tính năng Backend cho hệ thống eAccount (Bản cập nhật)
+
+Dựa trên phản hồi từ bạn, dưới đây là danh sách cập nhật các tính năng và yêu cầu kỹ thuật mà Backend eAccount cần xây dựng. Các thay đổi chính bao gồm: loại bỏ khái niệm Admin, định nghĩa lại mô hình User thuần/User quản lý bằng số âm/dương, cấu trúc lại API (ưu tiên POST và Request Body thay vì Path Variable để tăng cường bảo mật), và bổ sung rõ ràng các API phục vụ Authentication giữa các service.
+
+## 1. Mở rộng thông tin User (User Profile)
+Mở rộng thực thể `User` mặc định (hoặc tạo thực thể `UserProfile`) chứa các trường:
+- Mặc định: `email` (khóa chính/tài khoản đăng nhập), `firstName` (tên), `password` (đã mã hóa)
+- Mở rộng (Có thể null khi tạo mới, trừ phone): 
+  - `phone` (Bắt buộc)
+  - `dob` (Ngày sinh)
+  - `gender` (Giới tính)
+  - `position` (Vị trí)
+  - `job` (Công việc)
+  - `department` (Đơn vị trực thuộc)
+  - `avatar` (Ảnh đại diện)
+
+## 2. Quản lý Quyền (Mô hình Âm/Dương)
+Xóa bỏ khái niệm "Admin". Quyền hạn được biểu diễn bằng các con số.
+- **-1**: Quyền quản lý thông tin cá nhân (Mặc định mọi user đều có).
+- **1**: Quyền quản lý nhân sự (Tạo/Xóa tài khoản).
+- **2**: Quyền truy cập hồ sơ (eForm).
+- **3**: Quyền truy cập luồng (eFlow).
+- **4**: Quyền quản lý tài khoản (Tìm kiếm/Xóa mọi tài khoản, kể cả quản lý).
+- **5**: Quyền quản lý truy cập (Gán/Xóa quyền).
+
+**Logic User:**
+- **User thuần**: Chỉ sở hữu các quyền mang giá trị **Âm** (VD: -1).
+- **User quản lý**: Sở hữu cả quyền mang giá trị **Âm** và ít nhất một quyền mang giá trị **Dương** (VD: -1 và 1). Việc gán thêm quyền dương cho một user thuần sẽ tự động chuyển user đó vào danh sách "User quản lý".
+
+## 3. Các API Nội bộ (Dành cho Frontend eAccount gọi)
+Chuyển đổi các thao tác nhạy cảm sang phương thức `POST` và đưa thông tin (như email) vào Body (`@RequestBody`) thay vì URL (`@PathVariable`). Không gộp ép 1 tính năng = 1 API.
+
+### A. Quyền -1: Quản lý thông tin cá nhân
+- `GET /api/account/profile`: Lấy thông tin cá nhân và danh sách quyền của chính user đang đăng nhập.
+- `POST /api/account/profile/update`: Cập nhật thông tin bản thân (avatar, tên, phone, dob, gender, position, job, department, mật khẩu). Body gửi lên có thể chứa các trường null nếu không muốn cập nhật trường đó. (*Chỉ gọi được bởi chính user đó*).
+
+### B. Quyền 1: Quản lý nhân sự
+- `POST /api/hr/employee/create`: API tạo tài khoản nhân sự mới. 
+  - Body: `{ email, firstName, phone, department }` (Bắt buộc). 
+  - Cấu trúc: Kiểm tra trùng email -> Sinh mật khẩu ngẫu nhiên -> Lưu DB -> Trả về `{ email, password }` cho frontend hiển thị.
+- *Xóa tài khoản xem tại Quyền 1 & 4 (mục D).*
+
+### C. Quyền 4: Tìm kiếm và Xóa tài khoản
+Tính năng xóa sẽ được tách ra để phục vụ cho cả quyền 1 và 4.
+- `POST /api/management/account/search`: 
+  - Body: `{ email }`. 
+  - Trả về: `{ email, firstName, phone, department, status, ... }`. (Lưu ý: Không trả về password plaintext).
+- **Luồng Xóa tài khoản (Tách làm 2 API):**
+  1. `POST /api/management/account/check-deletable`: Kiểm tra xem user đang đăng nhập (nhờ JWT) có đủ thẩm quyền để xóa target `email` mang trong body không.
+     - *Luật*: Quyền 1 không được xóa user đang có quyền dương (User quản lý); Quyền 4 được xóa tất cả. Trả về `true`/`false`.
+  2. `POST /api/management/account/delete`: Thực hiện xóa tài khoản nếu `check-deletable` trả về `true` và user xác nhận.
+
+### D. Quyền 5: Quản lý truy cập (Phân quyền)
+- `POST /api/permissions/search-user-roles`: Lấy danh sách các quyền hiện tại của một user. Body: `{ email }`.
+- `POST /api/permissions/assign`: Gán thêm quyền. Body: `{ email, roles: [1, 2, ...] }`. Hệ thống sẽ tự phân loại quyền dương nào được thêm để update trạng thái user quản lý tương ứng.
+- `POST /api/permissions/revoke`: Xóa bớt quyền. Body: `{ email, roles: [2, 5, ...] }`. 
+
+## 4. Các API Giao tiếp Liên Service (Inter-service APIs)
+Các API này dành cho các microservice khác (như Service Đăng nhập, eForm, eFlow) gọi trực tiếp đến eAccount.
+
+- **Dành cho Service Đăng nhập / Auth Service:**
+  - `POST /api/internal/auth/verify-credentials`: Kiểm tra chứng thực.
+    - Nhận: `{ email, password }`.
+    - Xử lý: So sánh password hash trong DB của eAccount.
+    - Trả về: `true`/`false` (kèm theo claims/roles hiện tại nếu true để service Auth gen JWT).
+
+- **Dành cho eForm / eFlow (Quyền 2 & 3):**
+  - Mặc dù JWT token (do Auth service cấp sau khi gọi `verify-credentials` của eAccount) đã chứa sẵn các quyền âm/dương để eForm/eFlow tự parse và validate, eAccount vẫn cung cấp API kiểm tra trực tiếp nếu cần thiết:
+  - `POST /api/internal/permissions/check-access`:
+    - Nhận: `{ email, serviceName/requiredRole }` (VD: `{ email: "a@uet", requiredRole: 2 }`).
+    - Trả về: `true`/`false` xác nhận user đó có quyền truy cập service tương ứng hay không.
